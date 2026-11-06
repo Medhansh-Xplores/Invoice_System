@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Invoice Desk</title>
+    <style>
+        :root {
+            --bg: #f5f6f8;
+            --card: #fff;
+            --tx: #161a23;
+            --mu: #6b7385;
+            --bd: #e2e5ec;
+            --ac: #2f5bea;
+            --ok: #15803d;
+            --wa: #b45309;
+            --er: #b91c1c;
+            --in: #6d28d9;
+            --okb: #dcfce7;
+            --wab: #fef3c7;
+            --erb: #fee2e2;
+            --inb: #ede9fe
+        }
+
+        @media(prefers-color-scheme:dark) {
+            :root {
+                --bg: #0e1117;
+                --card: #171b24;
+                --tx: #e8eaf0;
+                --mu: #9aa3b5;
+                --bd: #2a3040;
+                --ac: #7b9bff;
+                --ok: #4ade80;
+                --wa: #fbbf24;
+                --er: #f87171;
+                --in: #c4b5fd;
+                --okb: #12301d;
+                --wab: #3a2c0a;
+                --erb: #3b1414;
+                --inb: #2a1f4d;
+                color-scheme: dark
+            }
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--tx);
+            font: 14.5px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif
+        }
+
+        header {
+            background: var(--card);
+            border-bottom: 1px solid var(--bd);
+            padding: 14px 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 5
+        }
+
+        h1 {
+            font-size: 17px;
+            margin: 0
+        }
+
+        header small {
+            color: var(--mu);
+            display: block;
+            font-size: 12px
+        }
+
+        nav {
+            display: flex;
+            gap: 6px;
+            margin-left: auto
+        }
+
+        nav button {
+            background: none;
+            border: 1px solid var(--bd);
+            color: var(--tx);
+            padding: 6px 13px;
+            border-radius: 8px;
+            cursor: pointer;
+            font: inherit
+        }
+
+        nav button.on {
+            background: var(--ac);
+            border-color: var(--ac);
+            color: #fff
+        }
+
+        main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 20px
+        }
+
+        .hide {
+            display: none !important
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+            gap: 16px;
+            align-items: start
+        }
+
+        @media(max-width:860px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px
+        }
+
+        h2 {
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--mu);
+            margin: 0 0 12px
+        }
+
+        .drop {
+            display: block;
+            margin-bottom: 6px;
+            border: 2px dashed var(--bd);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+            color: var(--mu);
+            cursor: pointer
+        }
+
+        .drop.over {
+            border-color: var(--ac);
+            color: var(--ac)
+        }
+
+        .demo {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 9px 0;
+            border-top: 1px solid var(--bd)
+        }
+
+        .demo>div {
+            flex: 1;
+            min-width: 0
+        }
+
+        .demo b {
+            display: block;
+            font-size: 13.5px
+        }
+
+        .demo span {
+            color: var(--mu);
+            font-size: 12px
+        }
+
+        button.run {
+            background: var(--ac);
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 600
+        }
+
+        button:disabled {
+            opacity: .45;
+            cursor: default
+        }
+
+        button.ghost {
+            background: none;
+            border: 1px solid var(--bd);
+            color: var(--tx);
+            border-radius: 8px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font: inherit
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 11.5px;
+            white-space: nowrap
+        }
+
+        .APPROVE {
+            background: var(--okb);
+            color: var(--ok)
+        }
+
+        .REVIEW {
+            background: var(--wab);
+            color: var(--wa)
+        }
+
+        .REJECT {
+            background: var(--erb);
+            color: var(--er)
+        }
+
+        .REQUEST_INFO {
+            background: var(--inb);
+            color: var(--in)
+        }
+
+        .step {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bd)
+        }
+
+        .step:last-child {
+            border: 0
+        }
+
+        .dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex: none;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid var(--bd);
+            color: var(--mu)
+        }
+
+        .dot.pass {
+            background: var(--ok);
+            border-color: var(--ok);
+            color: #fff
+        }
+
+        .dot.warn {
+            background: var(--wa);
+            border-color: var(--wa);
+            color: #fff
+        }
+
+        .dot.fail {
+            background: var(--er);
+            border-color: var(--er);
+            color: #fff
+        }
+
+        .dot.running {
+            border-color: var(--ac);
+            border-top-color: transparent;
+            animation: sp .8s linear infinite
+        }
+
+        .dot.skip,
+        .dot.pending {
+            opacity: .4
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .step .t {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-weight: 600
+        }
+
+        .step .t i {
+            font-weight: 400;
+            color: var(--mu);
+            font-size: 12px;
+            font-style: normal
+        }
+
+        .step .d {
+            color: var(--mu);
+            font-size: 13px
+        }
+
+        .step.sk .t {
+            color: var(--mu)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 8px 8px;
+            border-bottom: 1px solid var(--bd);
+            vertical-align: top
+        }
+
+        th {
+            color: var(--mu);
+            font-weight: 600;
+            font-size: 12px
+        }
+
+        tbody tr.click {
+            cursor: pointer
+        }
+
+        tbody tr.click:hover {
+            background: var(--bg)
+        }
+
+        .wrap {
+            overflow-x: auto
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 12px 14px
+        }
+
+        .stat b {
+            font-size: 24px;
+            display: block
+        }
+
+        .stat small {
+            color: var(--mu)
+        }
+
+        .flag {
+            border-left: 3px solid var(--wa);
+            background: var(--bg);
+            padding: 6px 10px;
+            margin: 6px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 13px
+        }
+
+        .flag.reject {
+            border-color: var(--er)
+        }
+
+        .flag.info {
+            border-color: var(--in)
+        }
+
+        .flag small {
+            color: var(--mu);
+            display: block
+        }
+
+        pre {
+            white-space: pre-wrap;
+            background: var(--bg);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 12.5px;
+            overflow: auto;
+            margin: 6px 0
+        }
+
+        .bar {
+            height: 10px;
+            border-radius: 6px;
+            background: var(--bd);
+            overflow: hidden;
+            margin: 6px 0
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: var(--ac)
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center
+        }
+
+        input,
+        select {
+            font: inherit;
+            background: var(--bg);
+            color: var(--tx);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 6px 10px
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow: auto;
+            padding: 30px 12px
+        }
+
+        .modal .card {
+            max-width: 860px;
+            width: 100%;
+            margin: 0
+        }
+
+        .mu {
+            color: var(--mu)
+        }
+
+        .kv td:first-child {
+            color: var(--mu);
+            width: 38%
+        }
+
+        .setg {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px
+        }
+
+        .setg label {
+            display: block;
+            font-size: 12.5px;
+            color: var(--mu)
+        }
+
+        .setg input {
+            width: 100%;
+            margin-top: 3px
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <h1>Invoice Desk</h1><small>The model reads the invoice. Rules decide. Everything is logged.</small>
+        </div>
+        <span id="health" class="mu" style="font-size:12px"></span>
+        <nav><button data-t="proc" class="on">Process</button><button data-t="dash">Dashboard</button><button
+                data-t="pos">PO ledger</button><button data-t="set">Settings</button></nav>
+    </header>
+    <main>
+        <section id="proc">
+            <div class="grid">
+                <div>
+                    <div class="card">
+                        <h2>1. Choose an invoice</h2>
+                        <label class="drop" id="drop"><input type="file" id="file" accept="application/pdf" hidden>Drop
+                            a PDF here or click to upload</label>
+                        <h2 style="margin-top:16px">Or run a prepared test invoice</h2>
+                        <div id="demos"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="card">
+                        <h2>2. Live run</h2>
+                        <div id="steps" class="mu">Pick an invoice to watch each stage execute.</div>
+                    </div>
+                    <div class="card hide" id="resc">
+                        <h2>3. Decision</h2>
+                        <div id="res"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="dash" class="hide">
+            <div class="stats" id="stats"></div>
+            <div class="card">
+                <div class="row" style="margin-bottom:10px">
+                    <h2 style="margin:0;flex:1">Run history</h2><select id="fdec">
+                        <option value="">All decisions</option>
+                        <option>APPROVE</option>
+                        <option>REVIEW</option>
+                        <option>REJECT</option>
+                        <option>REQUEST_INFO</option>
+                    </select><input id="fq" placeholder="Search vendor or invoice">
+                </div>
+                <div class="wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Time</th>
+                                <th>Vendor</th>
+                                <th>Invoice</th>
+                                <th>PO</th>
+                                <th>Total</th>
+                                <th>Decision</th>
+                                <th>Why</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hist"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <section id="pos" class="hide">
+            <div id="posl"></div>
+        </section>
+        <section id="set" class="hide">
+            <div class="card">
+                <h2>Decision thresholds (applied to the next run)</h2>
+                <div class="setg" id="setg"></div>
+                <div class="row" style="margin-top:14px"><button class="run" id="ssave">Save settings</button><button
+                        class="ghost" id="reset">Reset all data and demo ledger</button><span id="smsg"
+                        class="mu"></span></div>
+            </div>
+        </section>
+    </main>
+    <div id="modal" class="modal hide"></div>
+    <script>
+        const $ = id => document.getElementById(id), esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        const money = n => n == null ? "n/a" : "$" + Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const STAGES = ["Ingest", "Extract", "Normalise & sanity-check", "Vendor check", "PO match", "Amount vs PO balance", "Duplicate check", "Decision"];
+        const ICON = { pass: "✓", warn: "!", fail: "✕", skip: "–", running: "", pending: "" };
+        const badge = d => `<span class="badge ${esc(d)}">${esc(d.replace("_", " "))}</span>`;
+        let busy = false;
+        document.querySelectorAll("nav button").forEach(b => b.onclick = () => { document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));["proc", "dash", "pos", "set"].forEach(i => $(i).classList.toggle("hide", i !== b.dataset.t)); if (b.dataset.t === "dash") loadDash(); if (b.dataset.t === "pos") loadPos(); if (b.dataset.t === "set") loadSet() });
+        async function health() { try { const h = await (await fetch("/api/health")).json(); $("health").textContent = h.gemini_key_set ? "Extraction: Gemini vision (free tier)" : "Extraction: offline parser and cache (no Gemini key set)" } catch (e) { } }
+        async function loadDemos() {
+            const m = await (await fetch("/api/demo")).json(); $("demos").innerHTML = m.map(d => `<div class="demo"><div><b>${esc(d.label)}</b><span>${esc(d.note)}</span></div>${badge(d.expect)}<button class="run" data-f="${esc(d.file)}">Run</button></div>`).join("");
+            document.querySelectorAll("#demos button").forEach(b => b.onclick = () => start(() => fetch("/api/run-demo/" + encodeURIComponent(b.dataset.f), { method: "POST" })))
+        }
+        $("file").onchange = e => { const f = e.target.files[0]; if (f) { const fd = new FormData(); fd.append("file", f); start(() => fetch("/api/run", { method: "POST", body: fd })); e.target.value = "" } };
+        const drop = $("drop");["dragover", "dragenter"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over") }));["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over") }));
+        drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) { const fd = new FormData(); fd.append("file", f); start(() => fetch("/api/run", { method: "POST", body: fd })) } });
+        function drawSteps(st) { $("steps").className = ""; $("steps").innerHTML = STAGES.map(n => { const s = st[n] || { status: "pending" }; return `<div class="step ${s.status === "skip" ? "sk" : ""}"><div class="dot ${s.status}">${ICON[s.status] || ""}</div><div style="flex:1"><div class="t"><span>${esc(n)}</span><i>${s.ms != null && s.status !== "running" && s.status !== "pending" ? s.ms + " ms" : ""}</i></div><div class="d">${esc(s.detail || "")}</div></div></div>` }).join("") }
+        async function start(doFetch) {
+            if (busy) return; busy = true; document.querySelectorAll("button.run").forEach(b => b.disabled = true); $("resc").classList.add("hide"); const st = {}; drawSteps(st);
+            try {
+                const r = await doFetch(); if (!r.ok) { alert((await r.json()).detail || "Request failed"); return }
+                const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
+                while (true) {
+                    const { value, done } = await rd.read(); if (done) break; buf += dec.decode(value, { stream: true }); let i; while ((i = buf.indexOf("\n\n")) >= 0) {
+                        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2); if (!line.startsWith("data:")) continue; const ev = JSON.parse(line.slice(5));
+                        if (ev.type === "stage") { st[ev.name] = ev; drawSteps(st) } else if (ev.type === "done") showResult(ev.run)
+                    }
+                }
+            } catch (e) { alert("Run failed: " + e) } finally { busy = false; document.querySelectorAll("button.run").forEach(b => b.disabled = false) }
+        }
+        function fieldsTable(f) {
+            if (!f) return ""; const r = [["Vendor", f.vendor_name], ["Invoice no.", f.invoice_number], ["Date", f.date_iso || f.invoice_date], ["PO reference", f.po_reference || "(none on invoice)"], ["Subtotal", f.subtotal == null ? null : money(f.subtotal)], ["Tax", f.tax == null ? (f.tax_included ? "included in prices" : null) : money(f.tax)], ["Total", f.total == null ? null : money(f.total)], ["Bank account", f.bank_account]];
+            return `<table class="kv">${r.map(([k, v]) => `<tr><td>${k}</td><td>${v == null ? '<span class="mu">not found</span>' : esc(v)}</td></tr>`).join("")}</table>` + ((f.line_items || []).length ? `<table style="margin-top:8px"><tr><th>Line item</th><th>Amount</th></tr>${f.line_items.map(l => `<tr><td>${esc(l.description)}</td><td>${money(l.amount)}</td></tr>`).join("")}</table>` : "")
+        }
+        function showResult(r) {
+            const fl = (r.flags || []).map(x => `<div class="flag ${esc(x.sev)}">${esc(x.reason)}${x.owner ? `<small>Route to: ${esc(x.owner)}</small>` : ""}</div>`).join("");
+            $("res").innerHTML = `<div class="row">${badge(r.decision)}<span class="mu">run #${r.id} · ${r.duration_ms} ms · <a href="/api/runs/${r.id}/pdf" target="_blank">open PDF</a></span></div><p>${esc(r.rationale)}</p>${fl}<h2 style="margin-top:14px">What was extracted</h2>${fieldsTable(r.fields)}${r.email ? `<h2 style="margin-top:14px">Drafted email to vendor</h2><pre>${esc(r.email)}</pre>` : ""}`; $("resc").classList.remove("hide")
+        }
+        async function loadDash() {
+            const [s, runs] = await Promise.all([fetch("/api/stats").then(r => r.json()), fetch("/api/runs").then(r => r.json())]);
+            const by = s.by || {}; $("stats").innerHTML = `<div class="stat"><b>${s.total}</b><small>Runs</small></div>` + ["APPROVE", "REVIEW", "REJECT", "REQUEST_INFO"].map(d => `<div class="stat"><b>${by[d] || 0}</b>${badge(d)}</div>`).join("") + `<div class="stat"><b>${money(s.value_approved)}</b><small>Approved value</small></div><div class="stat"><b>${((s.avg_ms || 0) / 1000).toFixed(1)}s</b><small>Avg run time</small></div>`;
+            window._runs = runs; drawHist()
+        }
+        function drawHist() {
+            const d = $("fdec").value, q = $("fq").value.toLowerCase(); const rows = (window._runs || []).filter(r => (!d || r.decision === d) && (!q || ((r.vendor || "") + (r.invoice_number || "")).toLowerCase().includes(q)));
+            $("hist").innerHTML = rows.length ? rows.map(r => `<tr class="click" data-id="${r.id}"><td>${r.id}</td><td>${esc(r.created.replace("T", " "))}</td><td>${esc(r.vendor || "Unknown")}</td><td>${esc(r.invoice_number || "(none)")}</td><td>${esc(r.po_number || "-")}</td><td>${money(r.total)}</td><td>${badge(r.decision)}</td><td class="mu">${esc((r.rationale || "").slice(0, 110))}</td></tr>`).join("") : `<tr><td colspan="8" class="mu">No runs yet.</td></tr>`;
+            document.querySelectorAll("#hist tr.click").forEach(t => t.onclick = () => openRun(t.dataset.id))
+        }
+        $("fdec").onchange = drawHist; $("fq").oninput = drawHist;
+        async function openRun(id) {
+            const r = await (await fetch("/api/runs/" + id)).json(); const au = (r.audit || []).map(a => `<div class="step ${a.status === "skip" ? "sk" : ""}"><div class="dot ${a.status}">${ICON[a.status] || ""}</div><div style="flex:1"><div class="t"><span>${esc(a.name)}</span><i>${a.ms ?? 0} ms</i></div><div class="d">${esc(a.detail)}</div>${a.data && Object.keys(a.data).length ? `<details><summary class="mu" style="cursor:pointer;font-size:12px">Raw data</summary><pre>${esc(JSON.stringify(a.data, null, 1))}</pre></details>` : ""}</div></div>`).join("");
+            $("modal").innerHTML = `<div class="card"><div class="row"><h2 style="margin:0;flex:1">Run #${r.id} · ${esc(r.filename)}</h2><button class="ghost" id="mc">Close</button></div><div class="row" style="margin:10px 0">${badge(r.decision)}<a href="/api/runs/${r.id}/pdf" target="_blank">Open original PDF</a></div><p>${esc(r.rationale)}</p><h2>Audit trail</h2>${au}${r.email ? `<h2>Drafted email</h2><pre>${esc(r.email)}</pre>` : ""}</div>`;
+            $("modal").classList.remove("hide"); $("mc").onclick = () => $("modal").classList.add("hide")
+        }
+        $("modal").onclick = e => { if (e.target.id === "modal") $("modal").classList.add("hide") };
+        async function loadPos() { const p = await (await fetch("/api/pos")).json(); $("posl").innerHTML = p.map(x => { const pct = Math.min(100, x.billed / x.amount * 100); return `<div class="card"><div class="row"><b style="flex:1">${esc(x.po_number)} · ${esc(x.vendor)}</b><span class="mu">${esc(x.description)}</span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="row"><span>Billed ${money(x.billed)} of ${money(x.amount)}</span><span style="margin-left:auto"><b>${money(x.remaining)}</b> remaining</span></div>${x.invoices.length ? `<table style="margin-top:8px"><tr><th>Invoice</th><th>Date</th><th>Amount</th><th>Source</th></tr>${x.invoices.map(i => `<tr><td>${esc(i.invoice_number)}</td><td>${esc(i.invoice_date || "")}</td><td>${money(i.amount)}</td><td class="mu">${i.source === "seed" ? "history" : "this demo"}</td></tr>`).join("")}</table>` : ""}</div>` }).join("") }
+        const LBL = { tol_approve_pct: "Approve if up to this % over remaining PO balance", tol_review_pct: "Review up to this % over; reject beyond", dup_inv_edit: "Duplicate: max edit distance in invoice no.", dup_amount_pct: "Duplicate: amount within this %", dup_days: "Duplicate: dates within this many days", dup_score_threshold: "Duplicate score that triggers review (0 to 1)", po_match_min_conf: "Min confidence to accept an inferred PO (0 to 1)", math_tol_pct: "Math tolerance (subtotal + tax vs total) %" };
+        async function loadSet() { const s = await (await fetch("/api/settings")).json(); $("setg").innerHTML = Object.keys(LBL).map(k => `<label>${esc(LBL[k])}<input type="number" step="any" data-k="${k}" value="${s[k]}"></label>`).join("") }
+        $("ssave").onclick = async () => { const b = {}; document.querySelectorAll("#setg input").forEach(i => b[i.dataset.k] = i.value); await fetch("/api/settings", { method: "PUT", body: JSON.stringify(b) }); $("smsg").textContent = "Saved." };
+        $("reset").onclick = async () => { if (!confirm("Delete all runs and restore the demo ledger and default settings?")) return; await fetch("/api/reset", { method: "POST" }); $("smsg").textContent = "Reset done."; loadSet(); $("resc").classList.add("hide"); $("steps").className = "mu"; $("steps").textContent = "Pick an invoice to watch each stage execute." };
+        health(); loadDemos();
+    </script>
+</body>
+
+</html>
